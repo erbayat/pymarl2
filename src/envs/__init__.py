@@ -7,6 +7,7 @@ from .multiagentenv import MultiAgentEnv
 from .starcraft import StarCraft2Env
 from .matrix_game import OneStepMatrixGame
 from .stag_hunt import StagHunt
+from .uav_env import UAVEnv
 
 try:
     gfootball = True
@@ -22,7 +23,7 @@ REGISTRY = {}
 REGISTRY["sc2"] = partial(env_fn, env=StarCraft2Env)
 REGISTRY["stag_hunt"] = partial(env_fn, env=StagHunt)
 REGISTRY["one_step_matrix_game"] = partial(env_fn, env=OneStepMatrixGame)
-
+REGISTRY["uav_env"] = partial(env_fn, env=UAVEnv)
 if gfootball:
     REGISTRY["gfootball"] = partial(env_fn, env=GoogleFootballEnv)
 
