@@ -64,7 +64,8 @@ def run(_run, _config, _log):
             print("Thread joined")
 
     print("Exiting script")
-
+    if not hasattr(os, 'EX_OK'):
+        os.EX_OK = 0
     # Making sure framework really exits
     os._exit(os.EX_OK)
 

@@ -9,7 +9,7 @@ echo 'SC2PATH is set to '$SC2PATH
 
 if [ ! -d $SC2PATH ]; then
         echo 'StarCraftII is not installed. Installing now ...';
-        wget http://blzdistsc2-a.akamaihd.net/Linux/SC2.4.10.zip
+        curl http://blzdistsc2-a.akamaihd.net/Linux/SC2.4.10.zip
         unzip -P iagreetotheeula SC2.4.10.zip
         rm -rf SC2.4.10.zip
 else
@@ -24,7 +24,7 @@ if [ ! -d $MAP_DIR ]; then
         mkdir -p $MAP_DIR
 fi
 
-wget https://github.com/oxwhirl/smac/releases/download/v0.1-beta1/SMAC_Maps.zip
+curl https://github.com/oxwhirl/smac/releases/download/v0.1-beta1/SMAC_Maps.zip
 unzip SMAC_Maps.zip
 
 cp -r $smac_maps/* ./SMAC_Maps 

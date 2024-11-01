@@ -276,4 +276,3 @@ class CloudpickleWrapper():
     def __setstate__(self, ob):
         import pickle
         self.x = pickle.loads(ob)
-

@@ -13,7 +13,7 @@ import yaml
 
 from run import REGISTRY as run_REGISTRY
 
-SETTINGS['CAPTURE_MODE'] = "fd" # set to "no" if you want to see stdout/stderr in console
+SETTINGS['CAPTURE_MODE'] = "no" # set to "no" if you want to see stdout/stderr in console
 logger = get_logger()
 
 ex = Experiment("pymarl")
@@ -35,6 +35,7 @@ def my_main(_run, _config, _log):
     if "use_per" in _config and _config["use_per"]:
         run_REGISTRY['per_run'](_run, config, _log)
     else:
+        print(_config['run'])
         run_REGISTRY[_config['run']](_run, config, _log)
 
 def _get_config(params, arg_name, subfolder):
@@ -100,7 +101,7 @@ if __name__ == '__main__':
 
     # now add all the config to sacred
     ex.add_config(config_dict)
-
+    print(config_dict)
     # Save to disk by default for sacred
     map_name = parse_command(params, "env_args.map_name", config_dict['env_args']['map_name'])
     algo_name = parse_command(params, "name", config_dict['name']) 

@@ -144,6 +144,28 @@ class EpsilonGreedyActionSelector():
 REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
 
 
+# class BayesianActionSelector():
+
+#     def __init__(self, args):
+#         self.args = args
+
+
+
+#     def select_action(self, agent_inputs, avail_actions, t_env, test_mode=False):
+
+
+
+
+#         # mask actions that are excluded from selection
+#         masked_q_values = agent_inputs.clone()
+#         masked_q_values[avail_actions == 0] = -float("inf")  # should never be selected!
+        
+
+#         return picked_actions
+
+
+# REGISTRY["bayesian_selector"] = BayesianActionSelector
+
 class GaussianActionSelector():
 
     def __init__(self, args):

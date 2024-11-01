@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PyMARL2: Run QMIX with SC2",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/main.py",
+            "args": [
+                "--config=qmix_test",
+                "--env-config=partial_uav_env",
+                "with",
+                "env_args.map_name=partial_uav_env"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
