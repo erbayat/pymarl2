@@ -34,7 +34,8 @@ env_args:
     obs_last_action: False
     grid_shape: [20, 30]   # the shape of the grid-world [height, width]
 #    p_stags_rest: 0.0       # probability that a stag will not move (at each time step)
-#    p_hare_rest: 0.0        # probability that a hare will not move (at each time step)
+    observability:1
+      #    p_hare_rest: 0.0        # probability that a hare will not move (at each time step)
 #    prevent_cannibalism: True   # If set to False, prey can be captured by other prey (witch is rewarding)
 #    print_caught_prey: False    # debug messages about caught prey and finished episodes
 #    print_frozen_agents: False  # debug messages about frozen agents after some prey has been caught

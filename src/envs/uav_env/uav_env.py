@@ -27,6 +27,9 @@ class UAVEnv(MultiAgentEnv):
         self.n_feats = 2
         self.grid_shape = np.array([20,30])
         self.x_max, self.y_max = self.grid_shape
+        print('Batch Size:', batch_size)
+        self.batch_mode = batch_size is not None
+        self.batch_size = batch_size if self.batch_mode else 1
         self.env_max = np.asarray(self.grid_shape, dtype=int_type)
         self.state_size = int(self.x_max * self.y_max * self.n_feats + self.n_uavs*2)
         # Define the internal state
@@ -44,8 +47,6 @@ class UAVEnv(MultiAgentEnv):
         self.action_move = 4
         self.n_actions = len(action_labels)
 
-        self.batch_mode = batch_size is not None
-        self.batch_size = batch_size if self.batch_mode else 1
         self.grid = np.zeros((self.batch_size, self.x_max, self.y_max, self.n_feats), dtype=float_type)
         for i in range(self.grid.shape[0]):
             self.environment_map[i,:,:] =  generate_binary_map_with_ratio(rows, cols, ratio_of_ones)
@@ -106,7 +107,7 @@ class UAVEnv(MultiAgentEnv):
         if not self.batch_mode:
             actions = np.expand_dims(np.asarray(actions, dtype=int_type), axis=1)
 
-
+        
         reward = np.ones(self.batch_size, dtype=float_type) * self.time_reward
         terminated = [False for _ in range(self.batch_size)]
 

@@ -31,7 +31,7 @@ class PartialUAVEnv(MultiAgentEnv):
         rows, cols = self.grid_shape[0], self.grid_shape[1]
         ratio_of_ones = 0.7  # Example ratio
         self.episode_number = 1
-        self.observability = getattr(args, "observability", 0)
+        self.observability = getattr(args, "observability", 1)
         current_dir = os.path.dirname(os.path.abspath(__file__))
         maps_dir = os.path.join(current_dir, 'maps')
         map_file = f'map_{self.episode_number}.npy'
