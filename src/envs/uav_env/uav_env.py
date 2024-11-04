@@ -75,7 +75,9 @@ class UAVEnv(MultiAgentEnv):
         self.episode_limit = getattr(args, "episode_limit", 100)
         self.time_reward = getattr(args, "reward_time", -0.1)
         self.send_to_base_reward = getattr(args, "reward_base", 10.0)
-
+        self.cell_distance = 20
+        self.step_in_sec = 3
+        self.packet_size = 200*1024
         # Initialize the internal state
         self.uavs = np.zeros((self.n_uavs, self.batch_size, 2), dtype=int_type)
         self.steps = 0
@@ -139,8 +141,8 @@ class UAVEnv(MultiAgentEnv):
         for b in range(self.batch_size):
             for u in range(self.n_uavs):
                 # Calculate the UAV's distance to the base station
-                distance_to_base_2D = np.linalg.norm(self.uavs[u, b, :] - self.base_station_pos[:2])
-                distance_to_base_3D = np.sqrt(distance_to_base_2D**2 + HEIGHT**2)
+                distance_to_base_2D = np.linalg.norm(self.uavs[u, :]+0.5  - self.base_station_pos[:2])*self.cell_distance
+                distance_to_base_3D = np.sqrt(distance_to_base_2D ** 2 + HEIGHT ** 2)
 
 
                 # Calculate data rate based on the distributed bandwidth and distance
@@ -153,7 +155,7 @@ class UAVEnv(MultiAgentEnv):
                     previous_int_size = int(self.float_queues[u, b])
 
                     # Calculate how much data is transmitted in this step
-                    transmitted_data = min(data_rate, self.float_queues[u, b])
+                    transmitted_data = min(data_rate*self.step_in_sec/self.packet_size, self.float_queues[u])
 
                     # Decrease the queue by the transmitted data amount
                     self.float_queues[u, b] -= transmitted_data
@@ -197,10 +199,10 @@ class UAVEnv(MultiAgentEnv):
     def calculate_data_rate(self, bandwidth, distance):
         if bandwidth == 0:
             return 0
-        p_n = 10  # Transmit power (in watts)
-        alpha_u = 1e-3  # Channel power gain at reference distance
-        B = 0.01  # Total bandwidth (in Hz)
-        N_0 = 1e-9  # Noise power spectral density (in watts/Hz)
+        p_n = 0.1  # Transmit power (in watts)
+        alpha_u = 1  # Channel power gain at reference distance
+        B = 10**5  # Total bandwidth (in Hz)
+        N_0 = 10**(-12.7)*alpha_u  # Noise power spectral density (in watts/Hz)
 	# Calculate the path loss (g_n_u_O)
         g_n_u_O = alpha_u / distance**2
     
