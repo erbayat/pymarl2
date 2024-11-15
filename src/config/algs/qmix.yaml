@@ -12,7 +12,12 @@ buffer_size: 5000
 batch_size: 128
 optimizer: 'adam'
 
-t_max: 10050000
+utility: 'expected'
+estimation: False
+model_name: 'partial_low_obs'
+estimation_step_size: 5
+t_max: 2050000
+estimation_threshold: 20
 
 # update the target network every {} episodes
 target_update_interval: 200
@@ -37,7 +42,8 @@ use_layer_norm: False
 # orthogonal init for DNN
 use_orthogonal: False
 gain: 0.01
-
+evaluate: False
+checkpoint_path: "/home/ubuntu/Egemen/pymarl2/results/models/full_obs__2024-11-07_18-16-08"
 # Priority experience replay
 use_per: False
 per_alpha: 0.6

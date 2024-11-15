@@ -55,6 +55,35 @@ class BayesianMAC:
         event_y_coords = event_indices[:,1].tolist()
         return event_x_coords, event_y_coords,uav_x_coords, uav_y_coords
 
+    def generate_binary_maps_with_probabilities(self,intensity_map, K):
+        """
+        Generates K samples of NxM binary maps based on a given probability intensity map
+        and calculates the probability of observing each sampled map.
+        
+        Parameters:
+        - intensity_map: numpy array of shape (N, M) containing probabilities for each pixel.
+        - K: int, the number of samples to generate.
+        
+        Returns:
+        - samples_with_probabilities: list of tuples, where each tuple contains:
+            - binary map (numpy array of shape (N, M))
+            - probability of observing that map (float)
+        """
+        N, M = intensity_map.shape
+        samples_with_probabilities = []
+        
+        for _ in range(K):
+            # Generate a binary map by sampling each pixel with its corresponding probability
+            sample = (np.random.rand(N, M) < intensity_map).astype(int)
+            
+            # Calculate the probability of this specific binary map
+            prob_map = np.where(sample == 1, intensity_map, 1 - intensity_map)
+            map_probability = np.prod(prob_map)  # Product of probabilities for this map
+            
+            samples_with_probabilities.append((sample, map_probability))
+        
+        return samples_with_probabilities
+
     def adjust_utilities(self, agent_outputs, current_locations, full_estimation_intensity, utility_function):
         num_actions = agent_outputs.shape[-1]
         num_uavs = agent_outputs.shape[-1]
@@ -100,6 +129,10 @@ class BayesianMAC:
         step_number = getattr(self.args,'estimation_step_size',5)
         utility_function = getattr(self.args,'utility','expected')
         avail_actions = ep_batch["avail_actions"][:, t_ep]
+        if utility_function=='random':
+            avail_actions_shape = avail_actions.shape
+            chosen_actions_shape = (avail_actions_shape[0], avail_actions_shape[1])  # assuming given shape
+            return th.randint(0, avail_actions_shape[2], chosen_actions_shape)
         # Only select actions for the selected batch elements in bs
         
         # if full_env_obs != None:

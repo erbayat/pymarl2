@@ -41,7 +41,6 @@ class TestEnv(MultiAgentEnv):
         action_labels = {'right': 0, 'down': 1, 'left': 2, 'up': 3, 'weight_increase': 4, 'weight_decrease': 5}
         self.action_move = 4
         self.n_actions = len(action_labels)
-        self.cell_distance = 20
         self.grid = np.zeros((self.x_max, self.y_max, self.n_feats), dtype=float_type)
         self.grid[:, :, 0] = self.environment_map
 
@@ -59,7 +58,7 @@ class TestEnv(MultiAgentEnv):
 
         # Actions (move in four directions and weight adjustment)
         self.actions = np.asarray([[0, 1], [1, 0], [0, -1], [-1, 0]], dtype=int_type)
-        self.weight_actions = np.array([-1, 1], dtype=int_type)  # reduce, increase
+        self.weight_actions = np.array([1, -1], dtype=int_type)  # reduce, increase
         self.action_names = ["right", "down", "left", "up", "weight_increase", "weight_decrease"]
 
         # Episode and reward settings
@@ -115,9 +114,10 @@ class TestEnv(MultiAgentEnv):
     def step(self, actions):
         reward = self.time_reward
         terminated = False
-
-        # Move the UAVs and handle events
         print(actions)
+        print(np.count_nonzero(self.grid[:, :, 0]))
+        #print(self.grid[:, :, 1])
+        # Move the UAVs and handle events
         for u in range(self.n_uavs):
             if actions[u] >= self.action_move:
                 # Adjust weights (if applicable)
@@ -326,7 +326,7 @@ class TestEnv(MultiAgentEnv):
         if x >= 0 and x < self.grid_shape[0] and y >= 0 and y < self.grid_shape[1]:    
             self.observed_state[x,y] = self.grid[x, y, 0]
             if self.knowledge_map[x, y] == 2:
-                self.knowledge_map[x, y] == self.environment_map[x,y]
+                self.knowledge_map[x, y] = self.environment_map[x,y]
 
 
     def _move_actor(self, pos, action):

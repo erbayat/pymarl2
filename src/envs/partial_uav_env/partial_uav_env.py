@@ -31,7 +31,8 @@ class PartialUAVEnv(MultiAgentEnv):
         rows, cols = self.grid_shape[0], self.grid_shape[1]
         ratio_of_ones = 0.7  # Example ratio
         self.episode_number = 1
-        self.observability = getattr(args, "observability", 1)
+        self.observability = getattr(args, "observability", 0)
+        print('*********************************************************************************Print',self.observability)
         current_dir = os.path.dirname(os.path.abspath(__file__))
         maps_dir = os.path.join(current_dir, 'maps')
         map_file = f'map_{self.episode_number}.npy'
@@ -89,6 +90,7 @@ class PartialUAVEnv(MultiAgentEnv):
         self.float_queues.fill(0)
         self.weights.fill(1)
         self.steps = 0
+
         self.sum_rewards = 0
         self.uavs = np.zeros((self.n_uavs, 2), dtype=int_type)
         self.grid.fill(0.0)
@@ -113,7 +115,6 @@ class PartialUAVEnv(MultiAgentEnv):
     def step(self, actions):
         reward = self.time_reward
         terminated = False
-
         # Move the UAVs and handle events
         for u in range(self.n_uavs):
             if actions[u] >= self.action_move:

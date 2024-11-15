@@ -33,7 +33,7 @@ env_args:
     observe_one_hot: False  # observe agent ID as one-hot vector (only for observer_ids=True)
     obs_last_action: False
     observability: 0
-    grid_shape: [20, 30]   # the shape of the grid-world [height, width]
+    grid_shape: [50, 50]   # the shape of the grid-world [height, width]
 #    p_stags_rest: 0.0       # probability that a stag will not move (at each time step)
 #    p_hare_rest: 0.0        # probability that a hare will not move (at each time step)
 #    prevent_cannibalism: True   # If set to False, prey can be captured by other prey (witch is rewarding)
@@ -52,9 +52,8 @@ env_args:
 #    toroidal: False         # whether the world is bounded (False) or toroidal (True)
 
 test_greedy: True
-#evaluate: True
-#checkpoint_path: "C:\\Users\\erbayat\\Desktop\\Topics\\Bayesian Estimation - Optimization\\pymarl2\\src"
-test_nepisode: 20
+
+test_nepisode: 30
 test_interval: 10000
 log_interval: 10000
 runner_log_interval: 10000

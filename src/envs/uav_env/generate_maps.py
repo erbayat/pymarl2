@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-def generate_binary_map_with_ratio(rows, cols, ratio_of_ones):
+def generate_random_binary_map_with_ratio(rows, cols, ratio_of_ones):
     # Total number of elements in the map
     total_elements = rows * cols
     
@@ -19,23 +19,69 @@ def generate_binary_map_with_ratio(rows, cols, ratio_of_ones):
     
     return binary_map
 
-# Set dimensions and ratio
-rows, cols = 20, 30
-ratio_of_ones = 0.7  # Example ratio
 
-# Generate 15 binary maps
-maps = {}
-for i in range(1, 16):
-    maps[f"map_{i}"] = generate_binary_map_with_ratio(rows, cols, ratio_of_ones)
+def generate_binary_map_with_latent(N, M, ones_ratio=0.7, a=1.0, b=5.0, c=1.0, d=5.0):
+    x = np.arange(0, N).reshape(-1, 1)
+    y = np.arange(0, M).reshape(1, -1)
+    b= N//2
+    d =  M//2
 
-# Directory to save the .npy files
-save_directory = r'C:\Users\erbayat\Desktop\Topics\Bayesian Estimation - Optimization\pymarl2\src\envs\uav_env\maps'
+    # Create the intensity map
+    intensity_map = a * (x - b)**2 + c * (y - d)**2
+    
+    # Normalize the intensity map
+    intensity_map = (intensity_map - np.min(intensity_map)) / (np.max(intensity_map) - np.min(intensity_map))
+    
+    
+    # Scale the intensity map to match the expected number of ones (target ratio)
+    target_sum = ones_ratio * N * M
+    current_sum = np.sum(intensity_map)
+    
+    # Rescale the intensity map so that the expected sum of ones matches the target number
+    scaled_intensity_map = intensity_map * (target_sum / current_sum)
+    
+    # Ensure that the values are between 0 and 1 after scaling
+    scaled_intensity_map = np.clip(scaled_intensity_map, 0, 1)
+    
+    # Generate a random map where each cell's probability of being 1 is given by the scaled intensity value
+    binary_map = (np.random.rand(N, M) < scaled_intensity_map).astype(int)
+    
+    return binary_map
 
-# Create the directory if it doesn't exist
-os.makedirs(save_directory, exist_ok=True)
 
-# Save each map as an npy file
-for i in range(1, 16):
-    np.save(os.path.join(save_directory, f'map_{i}.npy'), maps[f'map_{i}'])
+def generate_leftmost_10_percent_map(rows, cols):
+    # Create an empty map of all zeros
+    binary_map = np.zeros((rows, cols), dtype=int)
+    
+    # Calculate the number of columns that should be set to 1 (leftmost 10%)
+    num_leftmost_cols = int(cols * 0.3)
+    
+    # Set the leftmost 10% of columns in each row to 1
+    binary_map[:, :num_leftmost_cols] = 1
+    
+    return binary_map
 
+
+if __name__ == "__main__":
+
+    # Set dimensions and ratio
+    rows, cols = 50,50
+    ratio_of_ones = 0.5  # Example ratio
+    # Generate 15 binary maps
+    maps = {}
+    for i in range(1, 105):
+        maps[f"map_{i}"] = generate_binary_map_with_latent(rows, cols,ratio_of_ones)
+        print(maps[f"map_{i}"].shape)
+
+    # Directory to save the .npy files
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    save_directory = os.path.join(current_dir, str(rows)+'_'+str(cols))
+    save_directory = os.path.join(save_directory, 'maps')
+
+    # Create the directory if it doesn't exist
+    os.makedirs(save_directory, exist_ok=True)
+
+    # Save each map as an npy file
+    for i in range(1, 105):
+        np.save(os.path.join(save_directory, f'map_{i}.npy'), maps[f'map_{i}'])
 

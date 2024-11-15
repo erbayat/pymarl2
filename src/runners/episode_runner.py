@@ -64,7 +64,7 @@ class EpisodeRunner:
 
             # Pass the entire batch of experiences up till now to the agents
             # Receive the actions for each agent at this timestep in a batch of size 1
-            actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
+            actions = self.mac.select_actions(self.env.steps,self.env,self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
             # Fix memory leak
             cpu_actions = actions.to("cpu").numpy()
             
@@ -89,7 +89,7 @@ class EpisodeRunner:
         self.batch.update(last_data, ts=self.t)
 
         # Select actions in the last stored state
-        actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
+        actions = self.mac.select_actions(self.env.steps,self.env, self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
         # Fix memory leak
         cpu_actions = actions.to("cpu").numpy()
         self.batch.update({"actions": cpu_actions}, ts=self.t)
@@ -105,6 +105,7 @@ class EpisodeRunner:
             self.t_env += self.t
 
         cur_returns.append(episode_return)
+        print(cur_returns, np.mean(cur_returns))
 
         if test_mode and (len(self.test_returns) == self.args.test_nepisode):
             self._log(cur_returns, cur_stats, log_prefix)

@@ -98,10 +98,19 @@ if __name__ == '__main__':
     # config_dict = {**config_dict, **env_config, **alg_config}
     config_dict = recursive_dict_update(config_dict, env_config)
     config_dict = recursive_dict_update(config_dict, alg_config)
+    config_dict['estimation'] = parse_command(params, "estimation", config_dict['estimation'])
+    config_dict['utility'] = parse_command(params, "utility", config_dict['utility'])
+    config_dict['save_model'] = parse_command(params, "save_model", config_dict['save_model'])
+    config_dict['model_name'] = parse_command(params, "model_name", config_dict['model_name'])
+    config_dict['batch_size_run'] = parse_command(params, "batch_size_run", config_dict['batch_size_run'])
+    config_dict['name'] = parse_command(params, "name", config_dict['name'])
+    config_dict['runner'] = parse_command(params, "runner", config_dict['runner'])
 
+    config_dict['env_args']['observability'] = parse_command(params, "env_args.observability", config_dict['env_args']['observability'])
+
+    #model_name: 'partial_low_obs'
     # now add all the config to sacred
     ex.add_config(config_dict)
-    print(config_dict)
     # Save to disk by default for sacred
     map_name = parse_command(params, "env_args.map_name", config_dict['env_args']['map_name'])
     algo_name = parse_command(params, "name", config_dict['name']) 

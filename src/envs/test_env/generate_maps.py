@@ -55,7 +55,7 @@ ratio_of_ones = 0.7  # Example ratio
 maps = {}
 for i in range(1, 105):
     maps[f"map_{i}"] = generate_binary_map(rows, cols,ratio_of_ones)
-    print(maps[f"map_{i}"])
+    print(maps[f"map_{i}"].shape)
 
 # Directory to save the .npy files
 current_dir = os.path.dirname(os.path.abspath(__file__))

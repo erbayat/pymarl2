@@ -4,15 +4,19 @@ from estimator.discretize import run_nystrom_2d, covariance_2d
 from estimator.kernel import RBFKernel
 
 
-def estimate(step,x_loc,y_loc,x_max=20, y_max=30, grid_size=1, a=8, gamma=0.5, kernel=RBFKernel(), do_visualize=False):
+def estimate(step,x_loc,y_loc,args, grid_size=1, a=8, gamma=0.5, kernel=RBFKernel(), do_visualize=False):
     grid_min = 0
+    env_args = getattr(args,'env_args',{})
+    grid_shape = env_args.get('grid_shape',[20,30])
+    x_max=grid_shape[0]
+    y_max=grid_shape[1]
     x_grid = np.arange(grid_min, x_max, grid_size)
     y_grid = np.arange(grid_min, y_max, grid_size)
-    N = len(x_loc)  # You can change N to any number
+    N = len(x_loc)  
     shape = (N, 2)
     location = np.zeros(shape, dtype=int)
-    location[:, 0] = x_loc  # Column 0: values between 0-20
-    location[:, 1] = y_loc  # Column 1: values between 0-30
+    location[:, 0] = x_loc  # Column 0: values between 0-x_max
+    location[:, 1] = y_loc  # Column 1: values between 0-y_max
     intensity_list = []
     for _ in range(step):
         intensity, _ = run_nystrom_2d(x_grid, y_grid, location, a, gamma, kernel)

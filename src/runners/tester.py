@@ -74,7 +74,6 @@ class Tester:
             self.batch.update(post_transition_data, ts=self.t)
 
             self.t += 1
-
         cur_stats = self.test_stats if test_mode else self.train_stats
         cur_returns = self.test_returns if test_mode else self.train_returns
         log_prefix = "test_" if test_mode else ""

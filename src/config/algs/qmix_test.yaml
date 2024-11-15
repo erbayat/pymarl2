@@ -9,12 +9,13 @@ epsilon_anneal_time: 100000 # 500000 for 6h_vs_8z
 runner: "tester"
 run: 'test_run'
 batch_size_run: 1 # batch_size_run=4, buffer_size = 2500, batch_size=64  for 3s5z_vs_3s6z
-buffer_size: 1000 
-batch_size: 1
+buffer_size: 5000 
+batch_size: 128
 optimizer: 'adam'
+
 utility: 'expected'
 estimation: False
-model_name: 'full_obs'
+model_name: 'partial_low_obs'
 estimation_step_size: 5
 t_max: 10050000
 estimation_threshold: 20
@@ -41,6 +42,8 @@ use_layer_norm: False
 # orthogonal init for DNN
 use_orthogonal: False
 gain: 0.01
+evaluate: False
+checkpoint_path: ""
 
 # Priority experience replay
 use_per: False  
