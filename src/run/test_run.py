@@ -71,9 +71,11 @@ def run(_run, _config, _log):
 
 
 def evaluate_sequential(args, runner):
-
-    for _ in range(args.test_nepisode):
+    
+    print("Beginning evaluation test")
+    for i in range(args.test_nepisode):
         runner.run(test_mode=True)
+
 
     if args.save_replay:
         runner.save_replay()
@@ -132,6 +134,8 @@ def run_sequential(args, logger):
         timesteps = []
         timestep_to_load = 0
         checkpoint_model_path  = os.path.join(args.checkpoint_path, args.model_name)
+        print(checkpoint_model_path)
+        print('***********************')
 
         if not os.path.isdir(checkpoint_model_path):
             logger.console_logger.info("Checkpoint directiory {} doesn't exist".format(checkpoint_model_path))
@@ -155,13 +159,14 @@ def run_sequential(args, logger):
         logger.console_logger.info("Loading model from {}".format(model_path))
         learner.load_models(model_path)
         runner.t_env = 0
-
+        print(args.evaluate)
         if args.evaluate or args.save_replay:
             evaluate_sequential(args, runner)
             return
 
 
     logger.console_logger.info("Beginning evaluation")
+
     for i in range(args.test_nepisode):
         runner.run(test_mode=True)
 

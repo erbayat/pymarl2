@@ -32,9 +32,9 @@ class UAVEnv(MultiAgentEnv):
         self.batch_size = batch_size if self.batch_mode else 1
         self.env_max = np.asarray(self.grid_shape, dtype=int_type)
         self.state_size = int(self.x_max * self.y_max * self.n_feats + self.n_uavs*2)
-        self.evaluate = np.array(getattr(args, "evaluate", False))
+        self.evaluate = getattr(args, "read_map", False)
         self.observability = getattr(args, "observability", 0)
-        self.episode_number = 1
+        self.episode_number = 35#1
         self.steps = 0
 
 
@@ -49,6 +49,7 @@ class UAVEnv(MultiAgentEnv):
         self.grid = np.zeros((self.batch_size, self.x_max, self.y_max, self.n_feats), dtype=float_type)
         for i in range(self.grid.shape[0]):
             if self.evaluate:
+                print('saved map read')
                 current_dir = os.path.dirname(os.path.abspath(__file__))
                 maps_dir = os.path.join(current_dir, str(self.x_max)+'_'+str(self.y_max))
                 maps_dir = os.path.join(maps_dir, 'maps')
@@ -56,7 +57,7 @@ class UAVEnv(MultiAgentEnv):
                 file_path = os.path.join(maps_dir, map_file)
                 map = np.load(file_path)
             else:
-                map = generate_random_binary_map_with_ratio(rows, cols, ratio_of_ones)
+                map = generate_map_with_bisection_radius(rows, cols, ratio_of_ones)
             self.environment_map[i,:,:] =  map
             self.grid[i, :, :, 0] = self.environment_map[i,:,:]
 
@@ -92,6 +93,7 @@ class UAVEnv(MultiAgentEnv):
         self.uavs = np.zeros((self.n_uavs, self.batch_size, 2), dtype=int_type)
         self.steps = 0
         self.sum_rewards = 0
+        self.isSent = np.full((self.batch_size,self.x_max, self.y_max), 1, dtype=int_type)
         self.knowledge_map = np.full((self.batch_size,self.x_max, self.y_max), 2, dtype=int_type)  # Start with all cells as unvisited (2)
         self.observed_state = np.full((self.batch_size,self.x_max, self.y_max), 2, dtype=int_type)  # Start with all cells as unvisited (2)
         self._place_actors(self.uavs, 1)
@@ -100,6 +102,7 @@ class UAVEnv(MultiAgentEnv):
 
 
     def reset(self):
+        self.isSent = np.full((self.batch_size,self.x_max, self.y_max), 1, dtype=int_type)
         self.knowledge_map = np.full((self.batch_size,self.x_max, self.y_max), 2, dtype=int_type)  # Unvisited cells
         self.observed_state = np.full((self.batch_size,self.x_max, self.y_max), 2, dtype=int_type)  # Start with all cells as unvisited (2)
         self.int_queues.fill(0)
@@ -115,14 +118,15 @@ class UAVEnv(MultiAgentEnv):
         self.environment_map = np.zeros((self.batch_size, self.x_max, self.y_max), dtype=float_type)
         for i in range(self.grid.shape[0]):
             if self.evaluate:
+                print('saved map read')
                 current_dir = os.path.dirname(os.path.abspath(__file__))
-                maps_dir = os.path.join(current_dir, 'maps')
-                maps_dir = os.path.join(maps_dir, str(self.x_max)+'_'+str(self.y_max))
+                maps_dir = os.path.join(current_dir, str(self.x_max)+'_'+str(self.y_max))
+                maps_dir = os.path.join(maps_dir, 'maps')
                 map_file = f'map_{self.episode_number}.npy'
                 file_path = os.path.join(maps_dir, map_file)
                 map = np.load(file_path)
             else:
-                map = generate_random_binary_map_with_ratio(rows, cols, ratio_of_ones)
+                map = generate_map_with_bisection_radius(rows, cols, ratio_of_ones)
             self.environment_map[i,:,:] =  map
             self.grid[i, :, :, 0] = self.environment_map[i,:,:]
         #print('Episode', self.episode_number)
@@ -130,9 +134,8 @@ class UAVEnv(MultiAgentEnv):
         return self.get_obs(), self.get_state()
 
     def step(self, actions):
-
         if not self.batch_mode:
-            actions = np.expand_dims(np.asarray(actions.cpu(), dtype=int_type), axis=1)
+            actions = np.expand_dims(np.asarray(actions, dtype=int_type), axis=1)
 
         
         reward = np.ones(self.batch_size, dtype=float_type) * self.time_reward
@@ -165,6 +168,7 @@ class UAVEnv(MultiAgentEnv):
                             		self.int_queues[u,b] = int(self.float_queues[u,b])
                             		self.grid[b,x, y, 0] = 0  
                             		self.observed_state[b,x, y] = 0
+                            		self.isSent[b,x, y] = 0
                             if self.knowledge_map[b,x,y] == 2:
                                 self.knowledge_map[b,x, y] = 1
                         else:
@@ -232,7 +236,7 @@ class UAVEnv(MultiAgentEnv):
 
         if self.steps >= self.episode_limit:
             terminated = [True for _ in range(self.batch_size)]
-            print(f'Episode {self.episode_number-1} Final Actions: ', actions[:,0])
+            #print(f'Episode {self.episode_number-1} Final Actions: ', actions[:,0])
 
         if self.batch_mode:
             return reward, terminated, {}
@@ -337,18 +341,38 @@ class UAVEnv(MultiAgentEnv):
                 self.knowledge_map[b,x, y] = self.environment_map[b,x,y]
                 
     def _place_actors(self, actors, type_id):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        positions_dir = os.path.join(current_dir, str(self.x_max)+'_'+str(self.y_max))
+        positions_dir = os.path.join(positions_dir, 'uav_positions')
+        os.makedirs(positions_dir, exist_ok=True)
+        position_file = os.path.join(positions_dir, f'uav_positions_{self.episode_number}.npy')
+        for b in range(self.batch_size):
+            if self.evaluate:
+                # Load pre-saved positions if in evaluation mode
+                if os.path.exists(position_file):
+                    saved_positions = np.load(position_file)
+                    actors[:, b, :] = saved_positions
+                    # actors[0, b, 0] = 5
+                    # actors[0, b, 1] = 20
+                    # actors[1, b, 0] = 15
+                    # actors[1, b, 1] = 20
+                    for a in range(actors.shape[0]):
+                        x, y = actors[a, b, 0], actors[a, b, 1]
+                        self.grid[b, x, y, type_id] = 1
+                        self.uavs[a, b, :] = actors[a, b, :]
+                else:
+                    raise ValueError(f"Position file not found: {position_file}")
+            else:
+                for a in range(actors.shape[0]):
+                    is_free = False
+                    while not is_free:
+                        actors[a, b, 0] = np.random.randint(self.env_max[0])
+                        actors[a, b, 1] = np.random.randint(self.env_max[1])
+                        is_free = self.grid[b, actors[a, b, 0], actors[a, b, 1], type_id] == 0
+                    self.grid[b, actors[a, b, 0], actors[a, b, 1], type_id] = 1
+                    self.uavs[a, b, :] = actors[a, b, :]
         for b in range(self.batch_size):
             for a in range(actors.shape[0]):
-                is_free = False
-                while not is_free:
-                    #right_margin = self.env_max[1] // 10  # This is the "10%" part of the map width
-                    #actors[a, b, 1] = np.random.randint(self.env_max[1] - right_margin, self.env_max[1])  # Rightmost area
-
-                    actors[a, b, 0] = np.random.randint(self.env_max[0])
-                    actors[a, b, 1] = np.random.randint(self.env_max[1])
-                    is_free = self.grid[b, actors[a, b, 0], actors[a, b, 1], type_id] == 0
-                self.grid[b, actors[a, b, 0], actors[a, b, 1], type_id] = 1
-                self.uavs[a, b, :] = actors[a, b,:]
                 if self.grid[b, actors[a, b, 0], actors[a, b, 1], 0]:
                     self.observed_state[b,actors[a, b,0], actors[a,b, 1]] = 1
                     if self.float_queues[a, b] < self.queue_capacity:
@@ -357,6 +381,7 @@ class UAVEnv(MultiAgentEnv):
                         self.grid[b, actors[a, b, 0], actors[a, b, 1], 0] = 0  
                         self.grid[b,actors[a, b,0], actors[a,b, 1], 0] = 0  
                         self.observed_state[b,actors[a, b,0], actors[a,b, 1]] = 0
+                        self.isSent[b,actors[a,b, 0], actors[a, b,1]] = 0
                     self.knowledge_map[b,actors[a,b, 0], actors[a, b,1]] = 1 
                 else:
                     if self.knowledge_map[b,actors[a,b, 0], actors[a, b,1]] == 2:

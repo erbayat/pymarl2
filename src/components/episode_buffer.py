@@ -16,6 +16,7 @@ class EpisodeBatch:
         self.groups = groups
         self.batch_size = batch_size
         self.max_seq_length = max_seq_length
+
         self.preprocess = {} if preprocess is None else preprocess
         self.device = device
 
@@ -28,6 +29,7 @@ class EpisodeBatch:
             self._setup_data(self.scheme, self.groups, batch_size, max_seq_length, self.preprocess)
 
     def _setup_data(self, scheme, groups, batch_size, max_seq_length, preprocess):
+
         if preprocess is not None:
             for k in preprocess:
                 assert k in scheme
@@ -73,6 +75,10 @@ class EpisodeBatch:
                 self.data.episode_data[field_key] = th.zeros((batch_size, *shape), dtype=dtype, device=self.device)
             else:
                 self.data.transition_data[field_key] = th.zeros((batch_size, max_seq_length, *shape), dtype=dtype, device=self.device)
+
+
+                # T episode lenght  max_seq_length = 1+T, trajectories as 0s, t = step_number
+                # while t is increasing, data[t] 
 
     def extend(self, scheme, groups=None):
         self._setup_data(scheme, self.groups if groups is None else groups, self.batch_size, self.max_seq_length)
@@ -121,6 +127,7 @@ class EpisodeBatch:
                 idx -= 1
 
     def __getitem__(self, item):
+
         if isinstance(item, str):
             if item in self.data.episode_data:
                 return self.data.episode_data[item]

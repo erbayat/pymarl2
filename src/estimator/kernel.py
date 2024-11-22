@@ -4,7 +4,7 @@ from scipy.special import eval_hermite as hermite
 
 
 class RBFKernel:
-    def __init__(self, theta0=1, theta1=0.01, theta2=0.01):
+    def __init__(self, theta0=1, theta1=0.005, theta2=0.005):
         """
         :param theta0: regularization
         :param theta1: bandwidth: 1 / (2 * sigma^2)

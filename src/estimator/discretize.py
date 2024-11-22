@@ -38,7 +38,7 @@ def loss_gradient(alpha, obs_size, mat_k_xx, a, gamma):
     return gradient_value
 
 
-def run_nystrom_2d(x_grid, y_grid, obs, a, gamma, kernel, num_samples=300):
+def run_nystrom_2d(x_grid, y_grid, obs, a, gamma, kernel, num_samples=100):
     x, y = np.meshgrid(x_grid, y_grid)
     xy_grid = np.column_stack((x.ravel(), y.ravel()))[:, ::-1]
     sample_indices = np.random.choice(xy_grid.shape[0], num_samples, replace=False)

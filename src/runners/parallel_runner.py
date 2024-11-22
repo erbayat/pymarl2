@@ -21,7 +21,7 @@ class ParallelRunner:
         self.ps = []
         for i, worker_conn in enumerate(self.worker_conns):
             ps = Process(target=env_worker, 
-                    args=(worker_conn, CloudpickleWrapper(partial(env_fn,**self.args.env_args))))
+                    args=(worker_conn, CloudpickleWrapper(partial(env_fn, **self.args.env_args))))
             self.ps.append(ps)
 
         for p in self.ps:

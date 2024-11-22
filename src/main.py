@@ -35,7 +35,6 @@ def my_main(_run, _config, _log):
     if "use_per" in _config and _config["use_per"]:
         run_REGISTRY['per_run'](_run, config, _log)
     else:
-        print(_config['run'])
         run_REGISTRY[_config['run']](_run, config, _log)
 
 def _get_config(params, arg_name, subfolder):
@@ -105,6 +104,9 @@ if __name__ == '__main__':
     config_dict['batch_size_run'] = parse_command(params, "batch_size_run", config_dict['batch_size_run'])
     config_dict['name'] = parse_command(params, "name", config_dict['name'])
     config_dict['runner'] = parse_command(params, "runner", config_dict['runner'])
+    config_dict['run'] = parse_command(params, "run", config_dict['run'])
+    config_dict['mac'] = parse_command(params, "mac", config_dict['mac'])
+
 
     config_dict['env_args']['observability'] = parse_command(params, "env_args.observability", config_dict['env_args']['observability'])
 

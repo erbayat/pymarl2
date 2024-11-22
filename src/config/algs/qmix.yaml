@@ -7,6 +7,7 @@ epsilon_finish: 0.05
 epsilon_anneal_time: 100000 # 500000 for 6h_vs_8z
 
 runner: "parallel"
+run: 'default'
 batch_size_run: 8 # batch_size_run=4, buffer_size = 2500, batch_size=64  for 3s5z_vs_3s6z
 buffer_size: 5000 
 batch_size: 128
@@ -14,10 +15,10 @@ optimizer: 'adam'
 
 utility: 'expected'
 estimation: False
-model_name: 'partial_low_obs'
+model_name: 'full_obs'
 estimation_step_size: 5
-t_max: 2050000
-estimation_threshold: 20
+t_max: 6050000
+estimation_threshold: 40
 
 # update the target network every {} episodes
 target_update_interval: 200
@@ -43,11 +44,13 @@ use_layer_norm: False
 use_orthogonal: False
 gain: 0.01
 evaluate: False
-checkpoint_path: "/home/ubuntu/Egemen/pymarl2/results/models/full_obs__2024-11-07_18-16-08"
+checkpoint_path: '/home/ubuntu/Egemen/pymarl2/src/models'
+#'/home/ubuntu/Egemen/pymarl2/src/models'
+#""
 # Priority experience replay
 use_per: False
 per_alpha: 0.6
 per_beta: 0.4
 return_priority: False
 
-name: "qmix_env=8_adam_td_lambda"
+name: ""

@@ -5,11 +5,12 @@ env: "uav_env"
 env_args:
     map_name: "uav_env"
     grid_shape: [50, 50] 
+    n_agents: 7
+    read_map: True
     observe_ids: False      # observe agent ID, instead of agent presence (only for state_as_list=False)
     observe_one_hot: False  # observe agent ID as one-hot vector (only for observer_ids=True)
     obs_last_action: False
     observability: 0
-    n_agents: 5 
 #    capture_action: True
 #    n_agents: 8
 #    n_stags: 8
@@ -58,7 +59,7 @@ env_args:
 #    world_shape: [10, 10]   # the shape of the grid-world [height, width]
 
 test_greedy: True
-test_nepisode: 16
+test_nepisode: 30
 test_interval: 10000
 log_interval: 10000
 runner_log_interval: 10000
